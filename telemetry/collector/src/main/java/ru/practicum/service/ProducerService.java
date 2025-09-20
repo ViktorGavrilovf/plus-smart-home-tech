@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.practicum.serializer.AvroSerializer;
 import lombok.RequiredArgsConstructor;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProducerService {
@@ -22,11 +24,13 @@ public class ProducerService {
 
     public void sendSensorEvent(SensorEventAvro event) {
         byte[] payload = AvroSerializer.serialize(event);
+        log.info("Отправка SensorEvent в Kafka: topic={}, key={}", sensorsTopic, event.getId());
         kafkaTemplate.send(sensorsTopic, event.getId(), payload);
     }
 
     public void sendHubEvent(HubEventAvro event) {
         byte[] payload = AvroSerializer.serialize(event);
+        log.info("Размер payload={} байт", payload.length);
         kafkaTemplate.send(hubsTopic, event.getHubId(), payload);
     }
 }

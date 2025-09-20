@@ -41,9 +41,6 @@ public class SensorEventMapper {
 
             case TEMPERATURE_SENSOR_EVENT -> builder.setPayload(
                     TemperatureSensorAvro.newBuilder()
-                            .setId(event.getId())
-                            .setHubId(event.getHubId())
-                            .setTimestamp(event.getTimestamp().toEpochMilli())
                             .setTemperatureC(((TemperatureSensorEvent) event).getTemperatureC())
                             .setTemperatureF(((TemperatureSensorEvent) event).getTemperatureF())
                             .build());
