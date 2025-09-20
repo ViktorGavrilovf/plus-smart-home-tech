@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +20,7 @@ public class DeviceAddedEvent extends HubEvent {
     DeviceType type;
 
     @Override
-    HubEventType getType() {
+    public HubEventType getType() {
         return HubEventType.DEVICE_ADDED;
     }
 

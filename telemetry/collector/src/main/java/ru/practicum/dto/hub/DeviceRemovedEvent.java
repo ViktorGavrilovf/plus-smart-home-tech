@@ -1,6 +1,6 @@
-package dto.sensor;
+package ru.practicum.dto.hub;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,12 +11,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SwitchSensorEvent extends SensorEvent {
-    @NotNull
-    boolean state;
+public class DeviceRemovedEvent extends HubEvent {
+    @NotBlank
+    String id;
 
     @Override
-    public SensorEventType getType() {
-        return SensorEventType.SWITCH_SENSOR_EVENT;
+    public HubEventType getType() {
+        return HubEventType.DEVICE_REMOVED;
     }
 }

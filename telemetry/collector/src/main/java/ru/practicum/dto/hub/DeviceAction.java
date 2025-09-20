@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

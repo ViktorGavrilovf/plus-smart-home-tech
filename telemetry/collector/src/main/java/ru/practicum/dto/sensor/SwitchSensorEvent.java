@@ -1,4 +1,4 @@
-package dto.sensor;
+package ru.practicum.dto.sensor;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -11,15 +11,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @ToString(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public  class TemperatureSensorEvent extends SensorEvent {
+public class SwitchSensorEvent extends SensorEvent {
     @NotNull
-    int temperatureC;
-
-    @NotNull
-    int temperatureF;
+    boolean state;
 
     @Override
     public SensorEventType getType() {
-        return SensorEventType.TEMPERATURE_SENSOR_EVENT;
+        return SensorEventType.SWITCH_SENSOR_EVENT;
     }
 }

@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -30,7 +30,7 @@ public class ScenarioAddedEvent extends HubEvent {
     List<DeviceAction> actions;
 
     @Override
-    HubEventType getType() {
+    public HubEventType getType() {
         return HubEventType.SCENARIO_ADDED;
     }
 }

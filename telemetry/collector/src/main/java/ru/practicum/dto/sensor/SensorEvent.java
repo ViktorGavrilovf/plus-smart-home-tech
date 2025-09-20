@@ -1,4 +1,4 @@
-package dto.sensor;
+package ru.practicum.dto.sensor;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 public enum HubEventType {
     DEVICE_ADDED,

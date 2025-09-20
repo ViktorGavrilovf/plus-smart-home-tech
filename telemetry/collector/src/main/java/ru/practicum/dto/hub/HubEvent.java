@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -33,8 +33,8 @@ public abstract class HubEvent {
     String hubId;
 
     @NotNull
-    Instant timestamp;
+    Instant timestamp = Instant.now();
 
     @NotNull
-    abstract HubEventType getType();
+    public abstract HubEventType getType();
 }

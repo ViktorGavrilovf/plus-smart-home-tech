@@ -1,4 +1,4 @@
-package dto.hub;
+package ru.practicum.dto.hub;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,7 +18,7 @@ public class ScenarioRemovedEvent extends HubEvent {
     String name;
 
     @Override
-    HubEventType getType() {
+    public HubEventType getType() {
         return HubEventType.SCENARIO_REMOVED;
     }
 }
