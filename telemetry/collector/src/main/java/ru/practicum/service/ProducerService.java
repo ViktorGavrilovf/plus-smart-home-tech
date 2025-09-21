@@ -24,13 +24,11 @@ public class ProducerService {
 
     public void sendSensorEvent(SensorEventAvro event) {
         byte[] payload = AvroSerializer.serialize(event);
-        log.info("Отправка SensorEvent в Kafka: topic={}, key={}", sensorsTopic, event.getId());
         kafkaTemplate.send(sensorsTopic, event.getId(), payload);
     }
 
     public void sendHubEvent(HubEventAvro event) {
         byte[] payload = AvroSerializer.serialize(event);
-        log.info("Размер payload={} байт", payload.length);
         kafkaTemplate.send(hubsTopic, event.getHubId(), payload);
     }
 }
