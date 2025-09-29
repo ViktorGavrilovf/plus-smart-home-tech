@@ -24,7 +24,7 @@ public class CollectorGrpcController extends CollectorControllerGrpc.CollectorCo
     private final ProtoToAvroHubMapper hubMapper;
 
     @Override
-    public void collectSensor(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+    public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         log.info("gRPC: получен SensorEventProto: {}", request);
         try {
             var avro = sensorMapper.toAvro(request);
@@ -37,7 +37,7 @@ public class CollectorGrpcController extends CollectorControllerGrpc.CollectorCo
     }
 
     @Override
-    public void collectHub(HubEventProto request, StreamObserver<Empty> responseObserver) {
+    public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         log.info("gRPC: получен HubEventProto: {}", request);
         try {
             var avro = hubMapper.toAvro(request);
