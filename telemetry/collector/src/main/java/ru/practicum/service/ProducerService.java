@@ -1,12 +1,11 @@
 package ru.practicum.service;
 
-import lombok.extern.slf4j.Slf4j;
-import ru.practicum.serializer.AvroSerializer;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import ru.practicum.serializer.AvroSerializer;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
