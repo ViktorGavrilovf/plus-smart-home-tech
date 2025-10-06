@@ -9,9 +9,23 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: false
+    sql:
+      init:
+        mode: always
+        schema-locations: classpath:schema.sql
+        continue-on-error: false
+        separator: ";"
+        encoding: UTF-8
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      continue-on-error: false
+      separator: ";"
+      encoding: UTF-8
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -43,7 +57,7 @@ analyzer:
 grpc:
   client:
     hub-router:
-      address: 'static://localhost:59091'
+      address: 'static://localhost:59090'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
