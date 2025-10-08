@@ -10,10 +10,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.*;
-import ru.yandex.practicum.model.Action;
-import ru.yandex.practicum.model.Condition;
-import ru.yandex.practicum.model.Scenario;
-import ru.yandex.practicum.model.Sensor;
+import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.repository.ActionRepository;
 import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
@@ -48,7 +45,6 @@ public class HubEventProcessor implements Runnable {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-hub-events-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "ru.yandex.practicum.deserializer.HubEventDeserializer");
-        props.put("schema", HubEventAvro.getClassSchema());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
@@ -70,71 +66,121 @@ public class HubEventProcessor implements Runnable {
 
     private void processEvent(HubEventAvro event) {
         log.debug("Получено событие HubEventAvro: {}", event);
-        String hubId = event.getHubId();
 
         switch (event.getPayload().getClass().getSimpleName()) {
-            case "DeviceAddedEventAvro" -> handleDeviceAdded(hubId, (DeviceAddedEventAvro) event.getPayload());
-            case "DeviceRemovedEventAvro" -> handleDeviceRemoved((DeviceRemovedEventAvro) event.getPayload());
-            case "ScenarioAddedEventAvro" -> handleScenarioAdded(hubId, (ScenarioAddedEventAvro) event.getPayload());
-            case "ScenarioRemovedEventAvro" -> handleScenarioRemoved(hubId, (ScenarioRemovedEventAvro) event.getPayload());
+            case "DeviceAddedEventAvro" -> handleDeviceAdded(event);
+            case "DeviceRemovedEventAvro" -> handleDeviceRemoved(event);
+            case "ScenarioAddedEventAvro" -> handleScenarioAdded(event);
+            case "ScenarioRemovedEventAvro" -> handleScenarioRemoved(event);
             default -> log.warn("Неизвестный тип события: {}", event.getPayload().getClass());
         }
     }
 
-    private void handleDeviceAdded(String hubId, DeviceAddedEventAvro payload) {
-        if (sensorRepository.existsById(payload.getId())) {
-            log.info("Сенсор {} уже зарегистрирован, пропускаем", payload.getId());
-            return;
-        }
-
-        Sensor sensor = Sensor.builder()
-                .id(payload.getId())
-                .hubId(hubId)
-                .build();
-        sensorRepository.save(sensor);
-        log.info("Добавлен новый сенсор: {} (hubId={})", payload.getId(), hubId);
-    }
-
-    private void handleDeviceRemoved(DeviceRemovedEventAvro payload) {
+    private void handleDeviceAdded(HubEventAvro event) {
+        DeviceAddedEventAvro payload = (DeviceAddedEventAvro) event.getPayload();
         String sensorId = payload.getId();
-        sensorRepository.findById(sensorId).ifPresentOrElse(sensor -> {
-            sensorRepository.delete(sensor);
-            log.info("Удалён сенсор: {}", sensorId);
-        }, () -> log.info("Попытка удалить несуществующий сенсор: {}", sensorId));
+        String hubId = event.getHubId();
+
+        sensorRepository.findById(sensorId).ifPresentOrElse(
+                s -> log.debug("Сенсор {} уже существует в хабе {}", sensorId, hubId),
+                () -> {
+                    sensorRepository.save(Sensor.builder()
+                            .id(sensorId)
+                            .hubId(hubId)
+                            .build());
+                    log.info("Добавлен новый сенсор {} в хаб {}", sensorId, hubId);
+                });
     }
 
-    private void handleScenarioAdded(String hubId, ScenarioAddedEventAvro payload) {
-        Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, payload.getName())
+    private void handleDeviceRemoved(HubEventAvro event) {
+        DeviceRemovedEventAvro payload = (DeviceRemovedEventAvro) event.getPayload();
+        String sensorId = payload.getId();
+
+        if (sensorRepository.existsById(sensorId)) {
+            sensorRepository.deleteById(sensorId);
+            log.info("Удалён сенсор {}", sensorId);
+        } else {
+            log.debug("Попытка удалить несуществующий сенсор {}", sensorId);
+        }
+    }
+
+    private void handleScenarioAdded(HubEventAvro event) {
+        ScenarioAddedEventAvro payload = (ScenarioAddedEventAvro) event.getPayload();
+        String hubId = event.getHubId();
+        String name = payload.getName();
+
+        Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, name)
                 .orElseGet(() -> Scenario.builder()
                         .hubId(hubId)
-                        .name(payload.getName())
+                        .name(name)
                         .build());
 
-        for (ScenarioConditionAvro cond : payload.getConditions()) {
-            Condition condition = Condition.builder()
+        scenarioRepository.save(scenario);
+
+        scenario.getConditions().clear();
+        scenario.getActions().clear();
+
+        payload.getConditions().forEach(cond -> {
+            Integer value = null;
+
+            Object rawValue = cond.getValue();
+            if (rawValue instanceof Integer i) {
+                value = i;
+            } else if (rawValue instanceof Boolean b) {
+                value = b ? 1 : 0;
+            }
+
+            Condition condition = conditionRepository.save(Condition.builder()
                     .type(cond.getType().name())
                     .operation(cond.getOperation().name())
-                    .value((Integer) cond.getValue())
-                    .build();
-            conditionRepository.save(condition);
-        }
+                    .value(value)
+                    .build());
 
-        for (DeviceActionAvro a : payload.getActions()) {
-            Action action = Action.builder()
-                    .type(a.getType().name())
-                    .value(a.getValue())
-                    .build();
-            actionRepository.save(action);
-        }
+            sensorRepository.findByIdAndHubId(cond.getSensorId(), hubId).ifPresent(sensor -> {
+                ScenarioCondition sc = ScenarioCondition.builder()
+                        .id(new ScenarioConditionId(scenario.getId(), sensor.getId(), condition.getId()))
+                        .scenario(scenario)
+                        .sensor(sensor)
+                        .condition(condition)
+                        .build();
+                scenario.getConditions().add(sc);
+            });
+        });
+
+        payload.getActions().forEach(act -> {
+            Action action = actionRepository.save(Action.builder()
+                    .type(act.getType().name())
+                    .value(act.getValue() != null ? act.getValue() : null)
+                    .build());
+
+            sensorRepository.findByIdAndHubId(act.getSensorId(), hubId).ifPresent(sensor -> {
+                ScenarioAction sa = ScenarioAction.builder()
+                        .id(new ScenarioActionId(scenario.getId(), sensor.getId(), action.getId()))
+                        .scenario(scenario)
+                        .sensor(sensor)
+                        .action(action)
+                        .build();
+                scenario.getActions().add(sa);
+            });
+        });
 
         scenarioRepository.save(scenario);
-        log.info("Добавлен сценарий {} для хаба {}", scenario.getName(), hubId);
+
+        log.info("Добавлен сценарий {} для хаба {} ({} условий, {} действий)",
+                name, hubId, payload.getConditions().size(), payload.getActions().size());
     }
 
-    private void handleScenarioRemoved(String hubId, ScenarioRemovedEventAvro payload) {
-        scenarioRepository.findByHubIdAndName(hubId, payload.getName()).ifPresentOrElse(scenario -> {
-            scenarioRepository.delete(scenario);
-            log.info("Удалён сценарий {} для хаба {}", payload.getName(), hubId);
-        }, () -> log.info("Сценарий '{}' для хаба {} не найден", payload.getName(), hubId));
+    private void handleScenarioRemoved(HubEventAvro event) {
+        ScenarioRemovedEventAvro payload = (ScenarioRemovedEventAvro) event.getPayload();
+        String hubId = event.getHubId();
+        String name = payload.getName();
+
+        scenarioRepository.findByHubIdAndName(hubId, name).ifPresentOrElse(
+                s -> {
+                    scenarioRepository.delete(s);
+                    log.info("Удалён сценарий {} из хаба {}", name, hubId);
+                },
+                () -> log.debug("Сценарий {} для хаба {} не найден", name, hubId)
+        );
     }
 }

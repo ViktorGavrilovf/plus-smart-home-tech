@@ -50,7 +50,6 @@ public class SnapshotProcessor {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-snapshots-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "ru.yandex.practicum.deserializer.SensorsSnapshotDeserializer");
-        props.put("schema", SensorsSnapshotAvro.getClassSchema());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
@@ -124,10 +123,10 @@ public class SnapshotProcessor {
 
         if (data instanceof TemperatureSensorAvro temp) {
             return compare(temp.getTemperatureC(), expected, operation);
+        } else if (data instanceof ClimateSensorAvro climate) {
+            return compare(climate.getTemperatureC(), expected, operation);
         } else if (data instanceof LightSensorAvro light) {
             return compare(light.getLuminosity(), expected, operation);
-        } else if (data instanceof ClimateSensorAvro climate) {
-            return compare(climate.getCo2Level(), expected, operation);
         } else if (data instanceof MotionSensorAvro motion) {
             return motion.getMotion() && expected == 1;
         } else if (data instanceof SwitchSensorAvro sw) {
@@ -151,11 +150,20 @@ public class SnapshotProcessor {
 
         for (ScenarioAction sa : scenario.getActions()) {
             Action action = sa.getAction();
+            String sensorId = sa.getSensor().getId();
+
+            Integer rawValue = action.getValue();
+            int safeValue = (rawValue != null) ? rawValue : 0;
+
+            if (rawValue == null) {
+                log.debug("Действие {} для сенсора {} не содержит value, подставлено 0",
+                        action.getType(), sensorId);
+            }
 
             DeviceActionProto grpcAction = DeviceActionProto.newBuilder()
-                    .setSensorId(sa.getSensor().getId())
+                    .setSensorId((sensorId))
                     .setType(ActionTypeProto.valueOf(action.getType()))
-                    .setValue(action.getValue())
+                    .setValue(safeValue)
                     .build();
 
             DeviceActionRequest request = DeviceActionRequest.newBuilder()
@@ -171,7 +179,7 @@ public class SnapshotProcessor {
             try {
                 hubRouterClient.handleDeviceAction(request);
                 log.info("Выполнено действие {} для сенсора {} (hubId={})",
-                        action.getType(), sa.getSensor().getId(), hubId);
+                        action.getType(), safeValue, hubId);
             } catch (StatusRuntimeException e) {
                 log.error("Ошибка при вызове gRPC HubRouter: {}", e.getStatus(), e);
             }

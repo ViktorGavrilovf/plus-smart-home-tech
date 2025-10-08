@@ -21,6 +21,5 @@ public class Action {
     @Column(nullable = false)
     String type;
 
-    @Column(nullable = false)
     Integer value;
 }
