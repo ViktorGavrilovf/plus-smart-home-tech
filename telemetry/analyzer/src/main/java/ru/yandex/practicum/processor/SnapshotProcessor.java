@@ -36,7 +36,7 @@ public class SnapshotProcessor {
     @GrpcClient("hub-router")
     private HubRouterControllerBlockingStub hubRouterClient;
 
-    @Value("${spring.kafka.bootstrap-servers}")
+    @Value("${analyzer.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${analyzer.topics.snapshots}")
@@ -53,9 +53,10 @@ public class SnapshotProcessor {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
-        try (KafkaConsumer<String, SensorsSnapshotAvro> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Collections.singletonList(snapshotsTopic));
+        KafkaConsumer<String, SensorsSnapshotAvro> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList(snapshotsTopic));
 
+        try  {
             while (true) {
                 ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(Duration.ofMillis(200));
 
@@ -69,6 +70,14 @@ public class SnapshotProcessor {
         } catch (WakeupException ignored) {
         } catch (Exception e) {
             log.error("Ошибка в SnapshotProcessor: ", e);
+        } finally {
+            try {
+                consumer.commitSync();
+            } catch (Exception e) {
+                log.warn("Ошибка при commitSync: {}", e.getMessage());
+            } finally {
+                consumer.close();
+            }
         }
     }
 

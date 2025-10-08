@@ -30,7 +30,7 @@ public class HubEventProcessor implements Runnable {
     private final ConditionRepository conditionRepository;
     private final ActionRepository actionRepository;
 
-    @Value("${spring.kafka.bootstrap-servers}")
+    @Value("${analyzer.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${analyzer.topics.hub-events}")
@@ -48,9 +48,10 @@ public class HubEventProcessor implements Runnable {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
-        try (KafkaConsumer<String, HubEventAvro> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Collections.singletonList(hubEventsTopic));
+        KafkaConsumer<String, HubEventAvro> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList(hubEventsTopic));
 
+        try  {
             while (true) {
                 ConsumerRecords<String, HubEventAvro> records = consumer.poll(Duration.ofMillis(200));
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
@@ -61,6 +62,14 @@ public class HubEventProcessor implements Runnable {
         } catch (WakeupException ignored) {
         } catch (Exception e) {
             log.error("Ошибка в HubEventProcessor: ", e);
+        } finally {
+            try {
+                consumer.commitSync();
+            } catch (Exception e) {
+                log.warn("Ошибка при commitSync: {}", e.getMessage());
+            } finally {
+                consumer.close();
+            }
         }
     }
 
@@ -97,6 +106,8 @@ public class HubEventProcessor implements Runnable {
         String sensorId = payload.getId();
 
         if (sensorRepository.existsById(sensorId)) {
+            sensorRepository.deleteConditionsBySensorId(sensorId);
+            sensorRepository.deleteActionsBySensorId(sensorId);
             sensorRepository.deleteById(sensorId);
             log.info("Удалён сенсор {}", sensorId);
         } else {

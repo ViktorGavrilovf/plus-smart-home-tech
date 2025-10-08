@@ -20,9 +20,9 @@ spring:
       separator: ";"
       encoding: UTF-8
 
+analyzer:
   kafka:
     bootstrap-servers: localhost:9092
-
     consumer:
       group-id: analyzer-snapshots-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -32,7 +32,6 @@ spring:
       enable-auto-commit: false
       auto-offset-reset: earliest
       max-poll-records: 100
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
@@ -41,8 +40,6 @@ spring:
         linger.ms: 5
         batch.size: 16384
         buffer.memory: 33554432
-
-analyzer:
   topics:
     snapshots: telemetry.snapshots.v1
     hub-events: telemetry.hubs.v1
