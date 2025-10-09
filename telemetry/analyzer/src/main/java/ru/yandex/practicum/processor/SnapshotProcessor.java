@@ -188,7 +188,7 @@ public class SnapshotProcessor {
             try {
                 hubRouterClient.handleDeviceAction(request);
                 log.info("Выполнено действие {} для сенсора {} (hubId={})",
-                        action.getType(), safeValue, hubId);
+                        action.getType(), sensorId, hubId);
             } catch (StatusRuntimeException e) {
                 log.error("Ошибка при вызове gRPC HubRouter: {}", e.getStatus(), e);
             }
