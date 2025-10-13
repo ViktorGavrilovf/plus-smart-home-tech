@@ -1,5 +1,6 @@
 package ru.yandex.practicum.deserializer;
 
+import ru.yandex.practicum.exception.DeserializationException;
 import org.apache.avro.Schema;
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DatumReader;
@@ -7,7 +8,6 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.common.serialization.Deserializer;
-import ru.yandex.practicum.exception.DeserializationException;
 
 import java.util.Map;
 

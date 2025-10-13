@@ -1,9 +1,9 @@
 package ru.yandex.practicum.repository;
 
+import ru.yandex.practicum.model.Scenario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.yandex.practicum.model.Scenario;
 
 import java.util.List;
 import java.util.Optional;
