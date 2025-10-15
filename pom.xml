@@ -20,6 +20,7 @@
         <module>infra</module>
         <module>commerce</module>
         <module>infra/config-server</module>
+        <module>infra/discovery-server</module>
     </modules>
 
     <properties>
@@ -93,18 +94,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springframework.retry</groupId>
                 <artifactId>spring-retry</artifactId>
             </dependency>
-
             <!--    / GRPC dependencies management        -->
         </dependencies>
     </dependencyManagement>
