@@ -5,7 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "scenario_actions")
+@Table(name = "scenario_actions", schema = "analyzer_store")
 @Getter
 @Setter
 @NoArgsConstructor
