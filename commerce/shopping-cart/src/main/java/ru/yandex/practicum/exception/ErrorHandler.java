@@ -9,7 +9,11 @@ import ru.yandex.practicum.error.HttpStatusProvide;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
+    @ExceptionHandler({
+            NotAuthorizedUserException.class,
+            NoProductsInShoppingCartException.class,
+            NotFoundCartException.class
+    })
     public ResponseEntity<ApiError> handle(RuntimeException exception) {
         HttpStatusProvide statusProvide = (HttpStatusProvide) exception;
 
