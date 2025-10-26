@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.ChangeProductQuantityRequest;
 import ru.yandex.practicum.cart.ShoppingCartDto;
+import ru.yandex.practicum.client.WarehouseClient;
 import ru.yandex.practicum.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
 import ru.yandex.practicum.exception.NotFoundCartException;
@@ -15,7 +16,6 @@ import ru.yandex.practicum.repository.ShoppingCartRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +24,7 @@ public class ShoppingCartService {
 
     private final ShoppingCartRepository repository;
     private final CartMapper mapper;
+    private final WarehouseClient warehouseClient;
 
     @Transactional(readOnly = true)
     public ShoppingCartDto getCart(String username) {
@@ -55,7 +56,10 @@ public class ShoppingCartService {
                 ));
 
         repository.save(cart);
-        return mapper.toDto(cart);
+        ShoppingCartDto dto = mapper.toDto(cart);
+        warehouseClient.checkAvailability(dto);
+
+        return dto;
     }
 
     @Transactional
@@ -99,7 +103,10 @@ public class ShoppingCartService {
 
         item.setQuantity(request.getNewQuantity());
         repository.save(cart);
-        return mapper.toDto(cart);
+        ShoppingCartDto dto = mapper.toDto(cart);
+        warehouseClient.checkAvailability(dto);
+
+        return dto;
     }
 
     private void validateUser(String username) {

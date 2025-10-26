@@ -30,6 +30,7 @@ public class ShoppingCart {
     CartState state;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
     Set<CartItem> items = new HashSet<>();
 
     public enum CartState {

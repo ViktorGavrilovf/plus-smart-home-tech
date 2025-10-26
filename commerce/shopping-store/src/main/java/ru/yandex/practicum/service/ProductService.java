@@ -7,14 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.enums.ProductCategory;
 import ru.yandex.practicum.enums.ProductState;
+import ru.yandex.practicum.enums.QuantityState;
 import ru.yandex.practicum.exception.ProductNotFoundException;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 import ru.yandex.practicum.shopping.ProductDto;
-import ru.yandex.practicum.shopping.SetProductQuantityStateRequest;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,9 +23,9 @@ public class ProductService {
     private final ProductRepository repository;
     private final ProductMapper mapper;
 
-    public List<ProductDto> findByCategory(ProductCategory category, Pageable pageable) {
-        Page<Product> page = repository.findAllByProductCategoryAndProductState(category, ProductState.ACTIVE, pageable);
-        return mapper.toDtoList(page.getContent());
+    public Page<ProductDto> findByCategory(ProductCategory category, Pageable pageable) {
+        return repository.findByProductCategory(category, pageable)
+                .map(mapper::toDto);
     }
 
     @Transactional
@@ -57,11 +56,11 @@ public class ProductService {
     }
 
     @Transactional
-    public boolean setQuantityState(SetProductQuantityStateRequest request) {
-        Product product = repository.findById(request.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
+    public boolean setQuantityState(UUID productId, String state) {
+        Product product = repository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        product.setQuantityState(request.getQuantityState());
+        product.setQuantityState(QuantityState.valueOf(state));
         repository.save(product);
         return true;
     }

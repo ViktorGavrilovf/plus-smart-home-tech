@@ -2,17 +2,14 @@ package ru.yandex.practicum.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.client.ShoppingStoreClient;
 import ru.yandex.practicum.enums.ProductCategory;
 import ru.yandex.practicum.service.ProductService;
 import ru.yandex.practicum.shopping.ProductDto;
-import ru.yandex.practicum.shopping.SetProductQuantityStateRequest;
 
-
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,11 +21,7 @@ public class ShoppingStoreController implements ShoppingStoreClient {
 
     @GetMapping
     @Override
-    public List<ProductDto> getByCategory(@RequestParam("category") ProductCategory category,
-                                          @RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size,
-                                          @RequestParam(required = false) String[] sort) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ProductDto> getByCategory(@RequestParam("category") ProductCategory category, Pageable pageable) {
         return service.findByCategory(category, pageable);
     }
 
@@ -52,8 +45,9 @@ public class ShoppingStoreController implements ShoppingStoreClient {
 
     @Override
     @PostMapping("/quantityState")
-    public boolean updateQuantity(@Valid @RequestBody SetProductQuantityStateRequest request) {
-        return service.setQuantityState(request);
+    public boolean updateQuantity(@RequestParam UUID productId,
+                                  @RequestParam String quantityState) {
+        return service.setQuantityState(productId, quantityState);
     }
 
     @Override
