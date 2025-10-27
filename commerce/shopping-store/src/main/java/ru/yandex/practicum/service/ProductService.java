@@ -13,6 +13,7 @@ import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 import ru.yandex.practicum.shopping.ProductDto;
+import ru.yandex.practicum.shopping.SetProductQuantityStateRequest;
 
 import java.util.UUID;
 
@@ -56,11 +57,11 @@ public class ProductService {
     }
 
     @Transactional
-    public boolean setQuantityState(UUID productId, String state) {
-        Product product = repository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+    public boolean setQuantityState(SetProductQuantityStateRequest request) {
+        Product product = repository.findById(request.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
 
-        product.setQuantityState(QuantityState.valueOf(state));
+        product.setQuantityState(request.getQuantityState());
         repository.save(product);
         return true;
     }

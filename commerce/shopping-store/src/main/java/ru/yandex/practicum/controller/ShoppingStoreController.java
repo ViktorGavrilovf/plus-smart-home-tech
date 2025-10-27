@@ -9,6 +9,7 @@ import ru.yandex.practicum.client.ShoppingStoreClient;
 import ru.yandex.practicum.enums.ProductCategory;
 import ru.yandex.practicum.service.ProductService;
 import ru.yandex.practicum.shopping.ProductDto;
+import ru.yandex.practicum.shopping.SetProductQuantityStateRequest;
 
 import java.util.UUID;
 
@@ -45,9 +46,8 @@ public class ShoppingStoreController implements ShoppingStoreClient {
 
     @Override
     @PostMapping("/quantityState")
-    public boolean updateQuantity(@RequestParam UUID productId,
-                                  @RequestParam String quantityState) {
-        return service.setQuantityState(productId, quantityState);
+    public boolean updateQuantity(SetProductQuantityStateRequest request) {
+        return service.setQuantityState(request);
     }
 
     @Override
