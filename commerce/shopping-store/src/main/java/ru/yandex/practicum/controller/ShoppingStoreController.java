@@ -46,7 +46,7 @@ public class ShoppingStoreController implements ShoppingStoreClient {
 
     @Override
     @PostMapping("/quantityState")
-    public boolean updateQuantity(@RequestBody SetProductQuantityStateRequest request) {
+    public boolean updateQuantity(SetProductQuantityStateRequest request) {
         return service.setQuantityState(request);
     }
 
