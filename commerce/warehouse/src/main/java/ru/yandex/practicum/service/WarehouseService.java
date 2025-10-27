@@ -81,7 +81,7 @@ public class WarehouseService {
             ProductStock stock = repository.findById(productId).orElseThrow(NoSpecifiedProductInWarehouseException::new);
 
             if (stock.getQuantity() < requestedQuantity) {
-                throw new ProductInShoppingCartLowQuantityInWarehouseException();
+                throw new ProductInShoppingCartLowQuantityInWarehouseException(cart.getProducts());
             }
 
             Double itemVolume = stock.getDimension().volume();
