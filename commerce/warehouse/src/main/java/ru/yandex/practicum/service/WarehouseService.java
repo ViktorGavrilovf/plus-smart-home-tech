@@ -16,6 +16,7 @@ import ru.yandex.practicum.warehouse.BookedProductsDto;
 import ru.yandex.practicum.warehouse.NewProductInWarehouseRequest;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -74,6 +75,8 @@ public class WarehouseService {
         double totalVolume = 0.0;
         boolean anyFragile = false;
 
+        Map<UUID, Long> missingProducts = new HashMap<>();
+
         for (Map.Entry<UUID, Long> entry : items.entrySet()) {
             UUID productId = entry.getKey();
             Long requestedQuantity = entry.getValue() == null ? 0 : entry.getValue();
@@ -81,13 +84,17 @@ public class WarehouseService {
             ProductStock stock = repository.findById(productId).orElseThrow(NoSpecifiedProductInWarehouseException::new);
 
             if (stock.getQuantity() < requestedQuantity) {
-                throw new ProductInShoppingCartLowQuantityInWarehouseException(cart.getProducts());
+                long missing = requestedQuantity - stock.getQuantity();
+                missingProducts.put(productId, missing);
+            } else {
+                Double itemVolume = stock.getDimension().volume();
+                totalVolume += itemVolume * requestedQuantity;
+                totalWeight += stock.getWeight() * requestedQuantity;
+                anyFragile = anyFragile || Boolean.TRUE.equals(stock.getFragile());
             }
-
-            Double itemVolume = stock.getDimension().volume();
-            totalVolume += itemVolume * requestedQuantity;
-            totalWeight += stock.getWeight() * requestedQuantity;
-            anyFragile = anyFragile || Boolean.TRUE.equals(stock.getFragile());
+            if (!missingProducts.isEmpty()) {
+                throw new ProductInShoppingCartLowQuantityInWarehouseException(missingProducts);
+            }
         }
 
         return BookedProductsDto.builder()

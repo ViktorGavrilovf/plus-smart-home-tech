@@ -1,5 +1,6 @@
 package ru.yandex.practicum.shopping;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +39,6 @@ public class ProductDto {
     ProductCategory productCategory;
 
     @NotNull
-    @Min(1)
+    @DecimalMin("1.0")
     BigDecimal price;
 }

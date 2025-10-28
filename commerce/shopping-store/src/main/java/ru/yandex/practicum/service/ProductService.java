@@ -51,7 +51,7 @@ public class ProductService {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        product.setProductState(ProductState.DEACTIVATE);
+        product.setProductState(ProductState.DEACTIVATED);
         repository.save(product);
         return true;
     }
