@@ -1,9 +1,8 @@
 package ru.yandex.practicum.shopping;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.enums.ProductCategory;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.enums.ProductState;
 import ru.yandex.practicum.enums.QuantityState;
 
 import java.util.UUID;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -39,6 +37,6 @@ public class ProductDto {
     ProductCategory productCategory;
 
     @NotNull
-    @DecimalMin("1.0")
-    BigDecimal price;
+    @Positive
+    Double price;
 }
