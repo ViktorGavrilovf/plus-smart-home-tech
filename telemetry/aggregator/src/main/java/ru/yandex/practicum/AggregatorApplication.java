@@ -8,7 +8,6 @@ import ru.yandex.practicum.service.AggregationStarter;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-
 public class AggregatorApplication  {
 
     public static void main(String[] args) {
