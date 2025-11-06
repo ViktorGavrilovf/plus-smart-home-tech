@@ -11,18 +11,18 @@ import ru.yandex.practicum.warehouse.AddressDto;
 import ru.yandex.practicum.warehouse.BookedProductsDto;
 import ru.yandex.practicum.warehouse.NewProductInWarehouseRequest;
 
-@FeignClient(name = "warehouse")
+@FeignClient(name = "warehouse", path = "/api/v1/warehouse")
 public interface WarehouseClient {
 
-    @PutMapping("/api/v1/warehouse")
+    @PutMapping
     void registerNewProduct(@RequestBody NewProductInWarehouseRequest request);
 
-    @PostMapping("/api/v1/warehouse/check")
+    @PostMapping("/check")
     BookedProductsDto checkAvailability(@RequestBody ShoppingCartDto cart);
 
-    @PostMapping("/api/v1/warehouse/add")
+    @PostMapping("/add")
     void addQuantity(@RequestBody AddProductToWarehouseRequest request);
 
-    @GetMapping("/api/v1/warehouse/address")
+    @GetMapping("/address")
     AddressDto getWarehouseAddress();
 }

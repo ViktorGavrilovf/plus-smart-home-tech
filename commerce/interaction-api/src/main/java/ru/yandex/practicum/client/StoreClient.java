@@ -10,24 +10,24 @@ import ru.yandex.practicum.shopping.SetProductQuantityStateRequest;
 
 import java.util.UUID;
 
-@FeignClient(name = "shopping-store")
-public interface ShoppingStoreClient {
+@FeignClient(name = "shopping-store", path = "/api/v1/shopping-store")
+public interface StoreClient {
 
-    @GetMapping("/api/v1/shopping-store")
+    @GetMapping
     Page<ProductDto> getByCategory(@RequestParam("category") ProductCategory category, Pageable pageable);
 
-    @PostMapping("/api/v1/shopping-store")
+    @PostMapping
     ProductDto create(@RequestBody ProductDto dto);
 
-    @PutMapping("/api/v1/shopping-store")
+    @PutMapping
     ProductDto update(@RequestBody ProductDto dto);
 
-    @PostMapping("/api/v1/shopping-store/removeProductFromStore")
+    @PostMapping("/removeProductFromStore")
     boolean remove(@RequestBody UUID productId);
 
-    @PostMapping("/api/v1/shopping-store/quantityState")
+    @PostMapping("/quantityState")
     boolean updateQuantity(SetProductQuantityStateRequest request);
 
-    @GetMapping("/api/v1/shopping-store/{productId}")
+    @GetMapping("/{productId}")
     ProductDto get(@PathVariable UUID productId);
 }

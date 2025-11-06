@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cart.ShoppingCartDto;
-import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
-import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouseException;
-import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
+import ru.yandex.practicum.error.exception.NoProductsInShoppingCartException;
+import ru.yandex.practicum.error.exception.NoSpecifiedProductInWarehouseException;
+import ru.yandex.practicum.error.exception.ProductInShoppingCartLowQuantityInWarehouseException;
+import ru.yandex.practicum.error.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.model.DimensionEmbeddable;
 import ru.yandex.practicum.model.ProductStock;
 import ru.yandex.practicum.repository.ProductStockRepository;
@@ -53,7 +54,7 @@ public class WarehouseService {
 
     @Transactional
     public void addQuantity(AddProductToWarehouseRequest request) {
-        ProductStock stock = repository.findById(request.getProductId()).orElseThrow(NoClassDefFoundError::new);
+        ProductStock stock = repository.findById(request.getProductId()).orElseThrow(NoProductsInShoppingCartException::new);
 
         Long newQuantity = stock.getQuantity() + request.getQuantity();
         stock.setQuantity(newQuantity);

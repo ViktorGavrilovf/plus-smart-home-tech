@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.error.ApiError;
 import ru.yandex.practicum.error.HttpStatusProvide;
-import ru.yandex.practicum.error.exception.ProductNotFoundException;
+import ru.yandex.practicum.error.exception.NoOrderFoundException;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
+    @ExceptionHandler(NoOrderFoundException.class)
     public ResponseEntity<ApiError> handle(RuntimeException exception) {
         HttpStatusProvide statusProvide = (HttpStatusProvide) exception;
 

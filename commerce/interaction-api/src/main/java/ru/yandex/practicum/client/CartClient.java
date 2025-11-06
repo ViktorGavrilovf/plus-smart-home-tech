@@ -9,24 +9,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@FeignClient(name = "shopping-cart")
-public interface ShoppingCartClient {
+@FeignClient(name = "shopping-cart", path = "/api/v1/shopping-cart")
+public interface CartClient {
 
-    @GetMapping("/api/v1/shopping-cart")
+    @GetMapping
     ShoppingCartDto getCart(@RequestParam("username") String username);
 
-    @PutMapping("/api/v1/shopping-cart")
+    @PutMapping
     ShoppingCartDto addProducts(@RequestParam("username") String username,
                                 @RequestBody Map<UUID, Long> products);
 
-    @DeleteMapping("/api/v1/shopping-cart")
+    @DeleteMapping
     void deactivate(@RequestParam("username") String username);
 
-    @PostMapping("/api/v1/shopping-cart/remove")
+    @PostMapping("/remove")
     ShoppingCartDto removeProducts(@RequestParam("username") String username,
                                    @RequestBody List<UUID> productIds);
 
-    @PostMapping("/api/v1/shopping-cart/change-quantity")
+    @PostMapping("/change-quantity")
     ShoppingCartDto changeQuantity(@RequestParam("username") String username,
                                    @RequestBody ChangeProductQuantityRequest request);
 }

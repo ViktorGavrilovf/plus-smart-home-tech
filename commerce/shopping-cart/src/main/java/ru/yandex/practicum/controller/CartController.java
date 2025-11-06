@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.cart.ChangeProductQuantityRequest;
 import ru.yandex.practicum.cart.ShoppingCartDto;
-import ru.yandex.practicum.client.ShoppingCartClient;
+import ru.yandex.practicum.client.CartClient;
 import ru.yandex.practicum.service.ShoppingCartService;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/shopping-cart")
 @RequiredArgsConstructor
-public class ShoppingCartController implements ShoppingCartClient {
+public class CartController implements CartClient {
 
     private final ShoppingCartService service;
 

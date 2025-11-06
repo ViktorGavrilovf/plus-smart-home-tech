@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.client.ShoppingStoreClient;
+import ru.yandex.practicum.client.StoreClient;
 import ru.yandex.practicum.enums.ProductCategory;
 import ru.yandex.practicum.service.ProductService;
 import ru.yandex.practicum.shopping.ProductDto;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/shopping-store")
 @RequiredArgsConstructor
-public class ShoppingStoreController implements ShoppingStoreClient {
+public class StoreController implements StoreClient {
 
     private final ProductService service;
 
