@@ -16,6 +16,7 @@ import ru.yandex.practicum.model.Delivery;
 import ru.yandex.practicum.order.OrderDto;
 import ru.yandex.practicum.repository.DeliveryRepository;
 import ru.yandex.practicum.warehouse.AddressDto;
+import ru.yandex.practicum.warehouse.ShippedToDeliveryRequest;
 
 import java.util.UUID;
 
@@ -67,6 +68,12 @@ public class DeliveryService {
     public DeliveryDto pickOrder(UUID orderId) {
         Delivery delivery = getDeliveryByOrderIdOrThrow(orderId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
+        warehouseClient.shippedToDelivery(
+                ShippedToDeliveryRequest.builder()
+                        .orderId(orderId)
+                        .deliveryId(delivery.getDeliveryId())
+                        .build()
+        );
         repository.save(delivery);
         orderClient.assembly(orderId);
         return mapper.toDto(delivery);

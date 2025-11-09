@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.client.OrderClient;
 import ru.yandex.practicum.client.StoreClient;
 import ru.yandex.practicum.enums.PaymentState;
-import ru.yandex.practicum.error.exception.NoOrderFoundException;
 import ru.yandex.practicum.error.exception.NotEnoughInfoInOrderToCalculateException;
 import ru.yandex.practicum.error.exception.PaymentNotFoundException;
 import ru.yandex.practicum.mapper.PaymentMapper;
@@ -73,13 +72,13 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
         payment.setState(PaymentState.SUCCESS);
         paymentRepository.save(payment);
-        orderClient.payment(payment.getPaymentId());
+        orderClient.payment(payment.getOrderId());
     }
 
     public void failedPayment(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
         payment.setState(PaymentState.FAILED);
         paymentRepository.save(payment);
-        orderClient.paymentFailed(payment.getPaymentId());
+        orderClient.paymentFailed(payment.getOrderId());
     }
 }
