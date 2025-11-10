@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.error.ApiError;
 import ru.yandex.practicum.error.HttpStatusProvide;
+import ru.yandex.practicum.error.exception.NoProductsInShoppingCartException;
+import ru.yandex.practicum.error.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.error.exception.NotFoundCartException;
 
 @RestControllerAdvice
 public class ErrorHandler {

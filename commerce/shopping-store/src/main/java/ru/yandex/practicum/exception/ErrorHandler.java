@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.error.ApiError;
 import ru.yandex.practicum.error.HttpStatusProvide;
+import ru.yandex.practicum.error.exception.ProductNotFoundException;
 
 @RestControllerAdvice
 public class ErrorHandler {
