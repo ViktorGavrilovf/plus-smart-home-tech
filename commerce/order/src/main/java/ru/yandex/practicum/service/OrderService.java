@@ -73,13 +73,8 @@ public class OrderService {
                 .build();
 
         DeliveryDto delivery = deliveryClient.createDelivery(deliveryRequest);
-
-        warehouseClient.shippedToDelivery(ShippedToDeliveryRequest.builder()
-                .orderId(order.getOrder_id())
-                .deliveryId(delivery.getDeliveryId())
-                .build());
-
         order.setState(OrderState.ASSEMBLED);
+        order.setDeliveryId(delivery.getDeliveryId());
 
         return orderMapper.toDto(orderRepository.save(order));
     }

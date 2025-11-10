@@ -44,19 +44,19 @@ public class WarehouseController implements WarehouseClient {
 
     @Override
     @PostMapping("/assembly")
-    public BookedProductsDto assemblyProductsForOrder(@RequestBody AssemblyProductsForOrderRequest request) {
+    public BookedProductsDto assemblyProductsForOrder(@Valid @RequestBody AssemblyProductsForOrderRequest request) {
         return service.assemblyProductsForOrder(request);
     }
 
     @Override
     @PostMapping("/shipped")
-    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+    public void shippedToDelivery(@Valid @RequestBody ShippedToDeliveryRequest request) {
         service.shippedToDelivery(request);
     }
 
     @Override
     @PostMapping("/return")
-    public void returnProduct(Map<UUID, Long> products) {
+    public void returnProduct(@Valid @RequestBody Map<UUID, Long> products) {
         service.returnProduct(products);
     }
 }

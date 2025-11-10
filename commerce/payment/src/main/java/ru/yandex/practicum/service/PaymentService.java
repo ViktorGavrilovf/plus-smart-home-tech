@@ -25,10 +25,7 @@ public class PaymentService {
     private final StoreClient storeClient;
 
     public PaymentDto createPayment(OrderDto orderDto) {
-        if (orderDto == null || orderDto.getProducts().isEmpty()) {
-            throw new NotEnoughInfoInOrderToCalculateException();
-        }
-
+        checkOrderDetails(orderDto);
         Double productCost = calculateProductCost(orderDto);
         Double tax = productCost * 0.1;
         Double delivery = orderDto.getDeliveryPrice();
@@ -48,20 +45,14 @@ public class PaymentService {
     }
 
     public Double calculateProductCost(OrderDto orderDto) {
-        if (orderDto == null || orderDto.getProducts().isEmpty()) {
-            throw new NotEnoughInfoInOrderToCalculateException();
-        }
-
+        checkOrderDetails(orderDto);
         return orderDto.getProducts().entrySet().stream()
                 .mapToDouble(entry -> storeClient.get(entry.getKey()).getPrice() * entry.getValue())
                 .sum();
     }
 
     public Double calculateTotalCost(OrderDto orderDto) {
-        if (orderDto == null || orderDto.getProducts().isEmpty()) {
-            throw new NotEnoughInfoInOrderToCalculateException();
-        }
-
+        checkOrderDetails(orderDto);
         Double productCost = calculateProductCost(orderDto);
         Double tax = productCost * 0.1;
         Double delivery = orderDto.getDeliveryPrice();
@@ -80,5 +71,14 @@ public class PaymentService {
         payment.setState(PaymentState.FAILED);
         paymentRepository.save(payment);
         orderClient.paymentFailed(payment.getOrderId());
+    }
+
+    private void checkOrderDetails(OrderDto orderDto) {
+        if (orderDto == null
+                || orderDto.getProducts() == null
+                || orderDto.getDeliveryPrice() == null
+                || orderDto.getProducts().isEmpty()) {
+            throw new NotEnoughInfoInOrderToCalculateException();
+        }
     }
 }
