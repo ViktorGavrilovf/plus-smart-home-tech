@@ -43,6 +43,12 @@ public class OrderController implements OrderClient {
     }
 
     @Override
+    @PostMapping("/payment/success")
+    public OrderDto paymentSuccess(@RequestBody UUID orderId) {
+        return orderService.paymentSuccess(orderId);
+    }
+
+    @Override
     @PostMapping("/payment/failed")
     public OrderDto paymentFailed(@RequestBody UUID orderId) {
         return orderService.paymentFailed(orderId);

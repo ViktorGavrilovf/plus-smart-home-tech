@@ -73,13 +73,8 @@ public class OrderService {
                 .build();
 
         DeliveryDto delivery = deliveryClient.createDelivery(deliveryRequest);
-
-        warehouseClient.shippedToDelivery(ShippedToDeliveryRequest.builder()
-                .orderId(order.getOrder_id())
-                .deliveryId(delivery.getDeliveryId())
-                .build());
-
         order.setState(OrderState.ASSEMBLED);
+        order.setDeliveryId(delivery.getDeliveryId());
 
         return orderMapper.toDto(orderRepository.save(order));
     }
@@ -118,9 +113,16 @@ public class OrderService {
     public OrderDto payment(UUID orderId) {
         Order order = getOrThrow(orderId);
         paymentClient.createPayment(orderMapper.toDto(order));
+        order.setState(OrderState.ON_PAYMENT);
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    public OrderDto paymentSuccess(UUID orderId) {
+        Order order = getOrThrow(orderId);
         order.setState(OrderState.PAID);
         return orderMapper.toDto(orderRepository.save(order));
     }
+
 
     public OrderDto paymentFailed(UUID orderId) {
         return updateState(orderId, OrderState.PAYMENT_FAILED);
